@@ -19,7 +19,7 @@ server.use(fileUpload(
     }))
 
 /**
- * Checks if file exists => true: download file and delete file in folder download
+ * Checks if file exists => true: download file and delete file in folder download and folder upload
  * false: response => 404 file not found
  * @author: Claudia
  * Note: params include filetype
@@ -30,23 +30,21 @@ server.get("/download/:filename", (req, res) => {
     // let message = req.body.message
     //console.log(message)
     const filename = req.params.filename
-    const path = `./download/${filename}`
-    let fileExists = false
+    const pathDown = `./download/${filename}`
+    const pathUp = `./upload/${filename}`
 
 
-    // check if file exists true /false
-    //funktion schreiben in service
 
-    //funktion schreiben für download
-
-    fs.access(path, fs.constants.F_OK, (err) => {
+    fs.access(pathDown, fs.constants.F_OK, (err) => {
 
         if (!err) {
-            console.log(`${filename} exists in ${path}`)
-            fileExists = true
-            res.status(200).download(path, () => {
+            console.log(`${filename} exists in ${pathDown}`)
+            res.status(200).download(pathDown, () => {
                 try {
-                    fs.unlink(path, () => {
+                    fs.unlink(pathUp, () => {
+                        console.log("File deleted in upload")
+                    })
+                    fs.unlink(pathDown, () => {
                         console.log("File deleted in download")
                     })
                 } catch (err) {
@@ -54,7 +52,6 @@ server.get("/download/:filename", (req, res) => {
 
                 }
             })
-            return fileExists
 
         } else {
             console.log("File Not Found!")
