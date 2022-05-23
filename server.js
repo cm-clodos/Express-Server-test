@@ -1,22 +1,56 @@
 const express = require("express")
+const fs = require("fs");
+const e = require("express");
 const server = express()
 const port = 8080
 
 //express wandelt JSON nicht automatisch um! Lösung: Middleware das JSON parst to js bevor die daten in der funktion bearbeitet werden.
 server.use(express.json())
 
-server.get("/download", (req, res) => {
+/**
+ * Checks if file exists => true: download file and delete file in folder download
+ * false: response => 404 file not found
+ * @author: Claudia
+ * Note: params with filetype
+ */
+server.get("/download/:filename", (req, res) => {
     //request = incoming data
     //response = outgoing data
-    let message = req.body.message
-    console.log(message)
+   // let message = req.body.message
+    //console.log(message)
+    const filename = req.params.filename
+    const path = `./download/${filename}`
+    let fileExists = false
 
-    res.status(200).send(
-        {
-            message: "Downloading File",
-            file: "This is your file data.txt"
+
+    // check if file exists true /false
+    //funktion schreiben in service
+
+    //funktion schreiben für download
+
+    fs.access(path, fs.constants.F_OK, (err) => {
+
+        if (!err){
+            console.log(`${filename} exists in ${path}`)
+            fileExists = true
+            res.status(200).download(path, () => {
+                try{
+                    fs.unlink(path, () => {
+                        console.log("File deleted in download")
+                    })
+                }catch (err){
+                    console.log("Error message: ", err)
+
+                }
+            })
+            return fileExists
+
+        }else {
+            console.log("File Not Found!")
+            return res.status(404).send({message: "File Not Found!"})
         }
-    )
+    })
+
 
 })
 
@@ -31,8 +65,6 @@ server.post("/tshirt/:id", (req, res) => {
             thsirt: `Tshirt with your ${logo} and your ID of ${id}`
         })
     }
-
-
 
 })
 
