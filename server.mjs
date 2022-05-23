@@ -100,20 +100,6 @@ server.post("/upload", async (req, res) => {
 })
 
 
-server.post("/tshirt/:id", (req, res) => {
-    const {id} = req.params
-    const {logo} = req.body
-
-    if (!logo) {
-        res.status(418).send({message: "We need a logo!"})
-    } else {
-        res.send({
-            thsirt: `Tshirt with your ${logo} and your ID of ${id}`
-        })
-    }
-
-})
-
 
 server.listen(port,
     () => {
